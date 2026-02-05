@@ -1,4 +1,6 @@
-import OpenRouter from '@openrouter/sdk';
+import { OpenRouter } from '@openrouter/sdk';
+import 'dotenv/config';
+
 const client = new OpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY
 });
