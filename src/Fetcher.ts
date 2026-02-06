@@ -29,7 +29,9 @@ export class Fetcher {
         type: this.config.jsonSchema ? "json_schema" : "json_object",
         jsonSchema: this.config.jsonSchema
       },
+      stream: false,
     });
+    console.dir(completion?.choices?.[0]?.message);
     return completion?.choices?.[0]?.message?.content;
   }
 }

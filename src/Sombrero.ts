@@ -26,44 +26,58 @@ export default class Sombrero {
 
     const fetcher = new Fetcher(this.options.fetchConfig);
 
-    // 1. Create a Fetch Run for auditing
     const fetchRun = await db.createFetchRun({
       runType: this.options.tableName,
       modelUsed: this.options.fetchConfig.llmModel,
-      inputData: JSON.stringify(records.map((r: any) => r[this.options.inputColumn])),
+      inputData: JSON.stringify(records.map((r: any) => ({id: r.id, input: r[this.options.inputColumn]}))),
       status: "processing"
     });
 
-    for (const record of records) {
-      const rawInput = record[this.options.inputColumn];
-      const cleanedInput = this.options.cleaner(rawInput);
+    const inputRecords = records.map((r: any) => ({
+      id: r.id,
+      input: this.options.cleaner ? this.options.cleaner(r[this.options.inputColumn]) : r[this.options.inputColumn]
+    }));
       
-      //try {
-        const llmResult = await fetcher.fetchResults(cleanedInput);
-        const validation = this.options.validator(rawInput, llmResult);
+    console.log(`Processing [${inputRecords.length}] records (ex: ${inputRecords.slice(0, 3).map((r: any) => r.input).join(", ")})`);
+    //try {
+      const llmResults = await fetcher.fetchResults(JSON.stringify(inputRecords));
+      db.updateFetchRunRawResult({id: fetchRun.id, rawResult: llmResults});
+      const results = JSON.parse(llmResults);
+
+
+      for(const result of results) {
+        console.log(`Processing result id[${result.id}], output[${result.output}]`);
+
+        const record = records.find((r: any) => r.id === result.id);
+        const validation = this.options.validator(
+          record?.[this.options.inputColumn],
+          result.output);
 
         const currentAttempt = record.fetchRunDetail?.processAttempts?.length || 0;
         let newStatus = "pending";
         if (validation.success) newStatus = "success";
         else if (currentAttempt + 1 >= (this.options.maxAttempts || 3)) newStatus = "error";
 
-        const fetchRunDetail = await db.updateFetchRunDetailStatus({escortId: record.id, status: newStatus});
+        const fetchRunDetail = await db.updateFetchRunDetail(
+          { escortId: record.id,
+            status: newStatus,
+            result: validation.success ? result.output : undefined });
 
         await db.createProcessAttempt({
           fetchRunDetailId: fetchRunDetail.id,
           fetchRunId: fetchRun.id,
           attemptNumber: currentAttempt + 1,
-          result: llmResult,
+          result: result.output,
           isSuccess: validation.success,
           failureReason: validation.reason
         });
 
-        console.log(`Successfully processed ${records.length} records...`);
         
       //} catch (error: any) {
        // console.error(`Error processing record ${record.id}:`, error.message);
       //}
     }
+    console.log(`Successfully processed ${records.length} records...`);
 
     return records.length;
   }

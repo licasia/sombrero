@@ -42,11 +42,18 @@ export async function createProcessAttempt({ fetchRunDetailId, fetchRunId, attem
   });
 }
 
-export async function updateFetchRunDetailStatus({escortId, status}: {escortId: number, status: string}) {
+export async function updateFetchRunRawResult({id, rawResult}: {id: number, rawResult: string}) {
+  await client.fetchRun.update({
+    where: { id },
+    data: { rawResult }
+  });
+}
+
+export async function updateFetchRunDetail({escortId, status, result}: {escortId: number, status: string, result: string}) {
   const record = await client.fetchRunDetail.upsert({
     where: { escortId },
-    update: { status },
-    create: { status, escortId }
+    update: { status, result },
+    create: { status, result, escortId }
   });
   return record;
 }

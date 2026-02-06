@@ -46,6 +46,7 @@ model FetchRunDetail {
   id       Int     @id @default(autoincrement())
   escortId Int?    @unique(map: "sqlite_autoindex_fetch_run_details_1") @map("escort_id")
   status   String?
+  result   String?
 
   escort          Escort?          @relation(fields: [escortId], references: [id]) 
   processAttempts ProcessAttempt[]

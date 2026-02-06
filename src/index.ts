@@ -1,17 +1,17 @@
 import Sombrero from './Sombrero.js';
 import { schemas, models } from './llmModelConfiguration.js';
 
-const escortCleaner = (name: string) => name?.replace(/\W+/, "")?.replace(/\s{2,}/, " ")?.replace(/re.up/i, "")?.trim();
+const escortCleaner = (name: string) => name?.replaceAll(/[^\s\p{L}]/ug, "")?.replaceAll(/\s{2,}/g, " ")?.replaceAll(/re.?up/gi, "")?.trim();
 const nameValidator = (oldName: string, newName: string) => {
   if((!oldName && newName) || (oldName && !newName)) return { success: false, reason: "One was blank and the other wasn't"};
   if(!oldName && !newName) return { success: true };
   if(oldName && !oldName.toLowerCase().includes(newName.toLowerCase())) return { success: false, reason: "New name not in included in old name" };
   if(/re.up/i.test(newName.toLowerCase())) return { success: false, reason: "Reup not part of name" };
-  if(/\W/.test(newName)) return { success: false, reason: "Invalid characters"};
+  if(!/^[\p{L}\s]+$/u.test(newName)) return { success: false, reason: "Invalid characters"};
   return { success: true };
 };
 
-const prompt = "Extract real name for each record (or nickname if no real name exists). Only return JSON";
+const prompt = "Extract real name with proper capitalizaiton for each record (or nickname if no real name exists). Only return JSON";
 const sombreroClient = new Sombrero({
   tableName: 'escort',
   inputColumn: 'name',
@@ -21,4 +21,4 @@ const sombreroClient = new Sombrero({
   maxAttempts: 3,
 });
 
-await sombreroClient.runBatch(1);
+await sombreroClient.runBatch(10);
