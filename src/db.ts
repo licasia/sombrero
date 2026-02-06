@@ -42,15 +42,13 @@ export async function createProcessAttempt({ fetchRunDetailId, fetchRunId, attem
   });
 }
 
-export async function updateStatus(tableName: string, id: string | number, status: string) {
-  // Assuming a one-to-one or explicit relation to fetchRunDetail
-  const record = await client[tableName].findUnique({ where: { id }, select: { fetchRunDetail: true } });
-  if (record?.fetchRunDetail) {
-    await client.fetchRunDetail.update({
-      where: { id: record.fetchRunDetail.id },
-      data: { status }
-    });
-  }
+export async function updateFetchRunDetailStatus({escortId, status}: {escortId: number, status: string}) {
+  const record = await client.fetchRunDetail.upsert({
+    where: { escortId },
+    update: { status },
+    create: { status, escortId }
+  });
+  return record;
 }
 
 export async function createFetchRun({ runType, llmModelUsed, inputData, status }: any) {

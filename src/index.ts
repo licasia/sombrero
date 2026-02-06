@@ -21,4 +21,4 @@ const sombreroClient = new Sombrero({
   maxAttempts: 3,
 });
 
-await sombreroClient.runBatch(50);
+await sombreroClient.runBatch(1);

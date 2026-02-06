@@ -38,14 +38,19 @@ export default class Sombrero {
       const rawInput = record[this.options.inputColumn];
       const cleanedInput = this.options.cleaner(rawInput);
       
-      try {
+      //try {
         const llmResult = await fetcher.fetchResults(cleanedInput);
         const validation = this.options.validator(rawInput, llmResult);
 
         const currentAttempt = record.fetchRunDetail?.processAttempts?.length || 0;
+        let newStatus = "pending";
+        if (validation.success) newStatus = "success";
+        else if (currentAttempt + 1 >= (this.options.maxAttempts || 3)) newStatus = "error";
+
+        const fetchRunDetail = await db.updateFetchRunDetailStatus({escortId: record.id, status: newStatus});
 
         await db.createProcessAttempt({
-          fetchRunDetailId: record.fetchRunDetail.id,
+          fetchRunDetailId: fetchRunDetail.id,
           fetchRunId: fetchRun.id,
           attemptNumber: currentAttempt + 1,
           result: llmResult,
@@ -53,18 +58,11 @@ export default class Sombrero {
           failureReason: validation.reason
         });
 
-        // Determine final status
-        let newStatus = "pending";
-        if (validation.success) newStatus = "success";
-        else if (currentAttempt + 1 >= (this.options.maxAttempts || 3)) newStatus = "error";
-
-        await db.updateStatus(this.options.tableName, record.id, newStatus);
-
         console.log(`Successfully processed ${records.length} records...`);
         
-      } catch (error: any) {
-        console.error(`Error processing record ${record.id}:`, error.message);
-      }
+      //} catch (error: any) {
+       // console.error(`Error processing record ${record.id}:`, error.message);
+      //}
     }
 
     return records.length;
