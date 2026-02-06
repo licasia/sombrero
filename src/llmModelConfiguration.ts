@@ -3,15 +3,19 @@ const models = {
 };
 const schemas = {
   default: {
-    "type": "array",
-    "items": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "number" },
-        "output": {}
-      },
-      "required": ["id", "result"],
-      "additionalProperties": false
+    "name": "defaultSchema",
+    "strict": true,
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "number" },
+          "output": { "type": "string" }
+        },
+        "required": ["id", "output"],
+        "additionalProperties": false
+      }
     }
   }
 };
