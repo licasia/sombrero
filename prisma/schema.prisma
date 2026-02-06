@@ -39,20 +39,19 @@ model Escort {
   validProfile         Boolean? @default(false) @map("valid_profile") 
 
   // Relations
-  fetchRunDetails      FetchRunDetail[]
+  fetchRunDetail      FetchRunDetail?
 
   @@map("escorts")
 }
 
 model FetchRunDetail {
   id         Int     @id @default(autoincrement()) 
-  escortId   Int?    @map("escort_id")
+  escortId   Int?    @unique @map("escort_id")
   fetchRunId Int?    @map("fetch_run_id")
   status     String?
 
   // Relations
   escort          Escort?          @relation(fields: [escortId], references: [id])
-  fetchRun        FetchRun?        @relation(fields: [fetchRunId], references: [id])
   processAttempts ProcessAttempt[]
 
   @@map("fetch_run_details")
@@ -85,7 +84,6 @@ model FetchRun {
   createdAt      DateTime? @default(now()) @map("created_at")
 
   // Relations
-  fetchRunDetails FetchRunDetail[]
   processAttempts ProcessAttempt[]
 
   @@map("fetch_runs")

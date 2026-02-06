@@ -42,10 +42,10 @@ export default class Sombrero {
         const llmResult = await fetcher.fetchResults(cleanedInput);
         const validation = this.options.validator(rawInput, llmResult);
 
-        const currentAttempt = record.fetchRunDetails?.processAttempts?.length || 0;
+        const currentAttempt = record.fetchRunDetail?.processAttempts?.length || 0;
 
         await db.createProcessAttempt({
-          fetchRunDetailsId: record.fetchRunDetails.id,
+          fetchRunDetailId: record.fetchRunDetail.id,
           fetchRunId: fetchRun.id,
           attemptNumber: currentAttempt + 1,
           result: llmResult,

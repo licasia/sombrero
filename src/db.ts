@@ -7,32 +7,32 @@ const client = new PrismaClient({ adapter }) as any; // Cast to any for dynamic 
 export { client };
 
 /**
- * Dynamically fetches records from any table that has a fetchRunDetails relation.
+ * Dynamically fetches records from any table that has a fetchRunDetail relation.
  */
 export async function getBatchedRecords(tableName: string, count: number = 100) {
   return await client[tableName].findMany({
     where: {
       OR: [
-        { fetchRunDetails: { is: null } },
-        { fetchRunDetails: { status: "pending" } }
+        { fetchRunDetail: { is: null } },
+        { fetchRunDetail: { is: { status: "pending" } } }
       ]
     },
     take: count, // Prisma uses 'take', not 'limit'
-    include: { fetchRunDetails: true }
+    include: { fetchRunDetail: true }
   });
 }
 
 export async function getRecordById(tableName: string, id: string | number) {
   return await client[tableName].findUnique({
     where: { id },
-    include: { fetchRunDetails: true }
+    include: { fetchRunDetail: true }
   });
 }
 
-export async function createProcessAttempt({ fetchRunDetailsId, fetchRunId, attemptNumber, result, isSuccess, failureReason }: any) {
+export async function createProcessAttempt({ fetchRunDetailId, fetchRunId, attemptNumber, result, isSuccess, failureReason }: any) {
   return await client.processAttempt.create({
     data: {
-      fetchRunDetails: { connect: { id: fetchRunDetailsId } },
+      fetchRunDetail: { connect: { id: fetchRunDetailId } },
       fetchRun: { connect: { id: fetchRunId } },
       attemptNumber,
       result,
@@ -43,18 +43,18 @@ export async function createProcessAttempt({ fetchRunDetailsId, fetchRunId, atte
 }
 
 export async function updateStatus(tableName: string, id: string | number, status: string) {
-  // Assuming a one-to-one or explicit relation to fetchRunDetails
-  const record = await client[tableName].findUnique({ where: { id }, select: { fetchRunDetails: true } });
-  if (record?.fetchRunDetails) {
-    await client.fetchRunDetails.update({
-      where: { id: record.fetchRunDetails.id },
+  // Assuming a one-to-one or explicit relation to fetchRunDetail
+  const record = await client[tableName].findUnique({ where: { id }, select: { fetchRunDetail: true } });
+  if (record?.fetchRunDetail) {
+    await client.fetchRunDetail.update({
+      where: { id: record.fetchRunDetail.id },
       data: { status }
     });
   }
 }
 
-export async function createFetchRun({ runType, modelUsed, inputData, status }: any) {
+export async function createFetchRun({ runType, llmModelUsed, inputData, status }: any) {
   return await client.fetchRun.create({
-    data: { runType, modelUsed, inputData, status }
+    data: { runType, llmModelUsed, inputData, status }
   });
 }
