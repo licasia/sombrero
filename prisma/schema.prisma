@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
   importFileExtension = "js"
 }
 
@@ -9,81 +9,84 @@ datasource db {
 }
 
 model Escort {
-  id                     Int                @id @default(autoincrement())
-  ext_id                 String?
-  is_active              Boolean?
-  name                   String?
-  phone                  String?
-  pass_code              String?
-  services               String?
-  price                  Int?
-  year                   Int?
-  height                 Int?
-  weight                 Int?
-  bust                   Int?
-  waist                  Int?
-  hip                    Int?
-  origin                 String?
-  city                   String?
-  district               String?
-  area                   String?
-  working_hours          String?
-  extra_fees             String?
-  primary_image_url      String?
-  primary_image_filename String?
-  images                 String?
-  video_url              String?
-  video_filename         String?
-  description            String?
-  address                String?
-  valid_profile          Boolean?           @default(false)
-  
+  id                   Int      @id @default(autoincrement())
+  extId                String?  @map("ext_id")
+  isActive             Boolean? @default(false) @map("is_active") 
+  name                 String?  
+  phone                String?  
+  passCode             String?  @map("pass_code") 
+  services             String?  
+  price                Int?     
+  year                 Int?     
+  height               Int?     
+  weight               Int?     
+  bust                 Int?     
+  waist                Int?     
+  hip                  Int?     
+  origin               String?  
+  city                 String?  
+  district             String?  
+  area                 String?  
+  workingHours         String?  @map("working_hours") 
+  extraFees            String?  @map("extra_fees") 
+  primaryImageUrl      String?  @map("primary_image_url") 
+  primaryImageFilename String?  @map("primary_image_filename")
+  images               String?
+  videoUrl             String?  @map("video_url") 
+  videoFilename        String?  @map("video_filename") 
+  description          String?  
+  address              String?  
+  validProfile         Boolean? @default(false) @map("valid_profile") 
+
   // Relations
-  fetch_run_details      FetchRunDetail[]
+  fetchRunDetails      FetchRunDetail[]
 
   @@map("escorts")
 }
 
 model FetchRunDetail {
-  id               Int              @id @default(autoincrement())
-  escort_id        Int?
-  status           String?
-  
+  id         Int     @id @default(autoincrement()) 
+  escortId   Int?    @map("escort_id")
+  fetchRunId Int?    @map("fetch_run_id")
+  status     String?
+
   // Relations
-  escort           Escort?          @relation(fields: [escort_id], references: [id])
-  process_attempts ProcessAttempt[]
+  escort          Escort?          @relation(fields: [escortId], references: [id])
+  fetchRun        FetchRun?        @relation(fields: [fetchRunId], references: [id])
+  processAttempts ProcessAttempt[]
 
   @@map("fetch_run_details")
 }
 
 model ProcessAttempt {
-  id                   Int            @id @default(autoincrement())
-  fetch_run_details_id Int
-  fetch_run_id         Int
-  attempt_number       Int?           @default(1)
-  extracted_data       String?        // Maps to TEXT
-  is_success           Boolean?       @default(false)
-  failure_reason       String?
-  created_at           DateTime?      @default(now())
+  id                Int       @id @default(autoincrement()) 
+  fetchRunDetailsId Int       @map("fetch_run_details_id")
+  fetchRunId        Int       @map("fetch_run_id")
+  attemptNumber     Int?      @default(1) @map("attempt_number") 
+  result            String?
+  isSuccess         Boolean?  @default(false) @map("is_success") 
+  failureReason     String?   @map("failure_reason")
+  createdAt         DateTime? @default(now()) @map("created_at") 
 
   // Relations
-  fetch_run_detail     FetchRunDetail @relation(fields: [fetch_run_details_id], references: [id])
-  fetch_run            FetchRun       @relation(fields: [fetch_run_id], references: [id])
+  fetchRunDetail FetchRunDetail @relation(fields: [fetchRunDetailsId], references: [id])
+  fetchRun       FetchRun       @relation(fields: [fetchRunId], references: [id])
 
   @@map("process_attempts")
 }
 
 model FetchRun {
-  id               Int              @id @default(autoincrement())
-  run_type         String
-  model_used       String?
-  input_data       String?          // Maps to TEXT
-  raw_result       String?          // Maps to TEXT
-  status           String?          @default("pending")
-  created_at       DateTime?        @default(now())
+  id             Int       @id @default(autoincrement()) 
+  runType        String    @map("run_type")
+  llmModelUsed   String?   @map("llm_model_used")
+  inputData      String?   @map("input_data")
+  rawResult      String?   @map("raw_result") 
+  status         String?   @default("pending") @map("status") 
+  createdAt      DateTime? @default(now()) @map("created_at")
 
   // Relations
-  process_attempts ProcessAttempt[]
+  fetchRunDetails FetchRunDetail[]
+  processAttempts ProcessAttempt[]
 
   @@map("fetch_runs")
 }
