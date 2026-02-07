@@ -1,5 +1,6 @@
 const models = {
   deepseekChimera: 'tngtech/deepseek-r1t2-chimera:free',
+  arcee: 'arcee-ai/trinity-large-preview:free',
 };
 const schemas = {
   default: {
