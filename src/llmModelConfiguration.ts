@@ -1,6 +1,8 @@
 const models = {
   deepseekChimera: 'tngtech/deepseek-r1t2-chimera:free',
   arcee: 'arcee-ai/trinity-large-preview:free',
+  stepFun: 'stepfun/step-3.5-flash:free',
+  pony: 'openrouter/pony-alpha',
 };
 const schemas = {
   default: {

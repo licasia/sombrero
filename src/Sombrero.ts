@@ -55,6 +55,10 @@ export default class Sombrero {
 
       for(const result of results) {
         const record = records.find((r: any) => r.id === result.id);
+        if(!record) {
+          console.warn(`Record with id[${result.id} not found`);
+          continue;
+        }
         console.log(`Processing result id[${result.id}] input[${record[this.options.inputColumn]} output[${result.output}]`);
 
         const validation = this.options.validator(

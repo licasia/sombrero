@@ -70,4 +70,36 @@ export class Db {
       data: { runType, llmModelUsed, inputData, status }
     });
   }
+
+  async apply({tableName, columnName, defaultValue}: any) {
+    const fetchRunDetails = await this.client.fetchRunDetail.findMany({
+      where: {
+        AND: [
+          {status: "success"},
+          {result: { not: null }}
+        ]
+      }});
+
+    for(const detail of fetchRunDetails) {
+      const modelId = detail[`${tableName}Id`];
+      const model = await this.client[tableName].findUnique({ where: { id: modelId }});
+      if(!model) {
+        console.warn(`FetchRunDetail has non-existent FK ID: ${modelId}`);
+        continue;
+      }
+      await this.client[tableName].update({
+        where: { id: modelId },
+        data: { [columnName]: detail.result }
+      });
+
+    }
+
+    if(defaultValue) {
+      await this.client[tableName].updateMany({
+        //where: { notIn: { id: fetchRunDetails.map((d: any) => d[`${tableName}Id`]) } },
+        where: { [columnName]: null },
+        data: { [columnName]: defaultValue }
+      });
+    }
+  }
 }

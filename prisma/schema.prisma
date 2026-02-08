@@ -32,11 +32,11 @@ model Escort {
   primaryImageUrl      String?  @map("primary_image_url")
   primaryImageFilename String?  @map("primary_image_filename")
   images               String?
+  reviewImages	       String? @map("review_images")
   videoUrl             String?  @map("video_url")
   videoFilename        String?  @map("video_filename")
   description          String?
   address              String?
-  validProfile         Boolean? @default(false) @map("valid_profile")
 
   fetchRunDetail      FetchRunDetail?
   @@map("escorts")

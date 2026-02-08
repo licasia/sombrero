@@ -32,6 +32,8 @@ export class Fetcher {
       stream: false,
     });
     console.dir(completion?.choices?.[0]?.message);
-    return completion?.choices?.[0]?.message?.content;
+    const content = completion?.choices?.[0]?.message?.content;
+    const stripped = content?.replace("```json", "")?.replace("```", "")?.trim()
+    return stripped;
   }
 }
