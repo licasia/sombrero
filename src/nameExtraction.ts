@@ -12,7 +12,7 @@ const nameValidator = (oldName: string, newName: string) => {
   return { success: true };
 };
 
-const prompt = "Extract real name or nickname with proper capitalizaiton for each record. Strip html tags like <b> or <span> as well es emoticons and any other characters that are not part of names. If no name or nickname appears, use null. Only return JSON";
+const prompt = "Extract real name or nickname with proper capitalizaiton for each record. Strip html tags like <b> or <span> as well es emoticons and any other characters that are not part of names. If no name or nickname appears, use undefined. Only return JSON";
 
 const options = {
   tableName: 'escort',
