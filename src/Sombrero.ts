@@ -60,10 +60,12 @@ export default class Sombrero {
           continue;
         }
         console.log(`Processing result id[${result.id}] input[${record[this.options.inputColumn]} output[${result.output}]`);
+        const resultOutput =
+          result.output === "" || result.output === "null" || result.output === "undefined" ? undefined : result.output;
 
         const validation = this.options.validator(
           record?.[this.options.inputColumn],
-          result.output);
+          resultOutput);
 
         const currentAttempt = record.fetchRunDetail?.processAttempts?.length || 0;
         let newStatus = "pending";
@@ -73,13 +75,13 @@ export default class Sombrero {
         const fetchRunDetail = await this.db.updateFetchRunDetail(
           { escortId: record.id,
             status: newStatus,
-            result: validation.success ? result.output : undefined });
+            result: validation.success ? resultOutput : undefined });
 
         await this.db.createProcessAttempt({
           fetchRunDetailId: fetchRunDetail.id,
           fetchRunId: fetchRun.id,
           attemptNumber: currentAttempt + 1,
-          result: result.output,
+          result: resultOutput,
           isSuccess: validation.success,
           failureReason: validation.reason
         });
