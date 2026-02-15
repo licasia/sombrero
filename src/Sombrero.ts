@@ -61,7 +61,7 @@ export default class Sombrero {
         }
         console.log(`Processing result id[${result.id}] input[${record[this.options.inputColumn]} output[${result.output}]`);
         const resultOutput =
-          result.output === "" || result.output === "null" || result.output === "undefined" ? undefined : result.output;
+          result.output?.trim() === "" || result.output?.toLowerCase() === "null" || result.output?.toLowerCase() === "undefined" ? undefined : result.output;
 
         const validation = this.options.validator(
           record?.[this.options.inputColumn],
